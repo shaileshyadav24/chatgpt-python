@@ -1,7 +1,8 @@
-from openai import OpenAI
+from openai import OpenAI, OpenAIError
 import os
 from os.path import join, dirname
 from dotenv import load_dotenv
+import sys
 
 dotenv_path = join(dirname(__file__), '.env')
 load_dotenv(dotenv_path)
@@ -17,11 +18,16 @@ class chatbot:
 
     def chat(self, message):
         self.chatMessages = self.chatMessages + [{ "role": "user", "content": message }]
-        completion = client.chat.completions.create(
-            model="gpt-4-turbo-preview",
-            messages=self.chatMessages
-        )
-        print("Answer:", completion.choices[0].message.content)
+        try:
+            completion = client.chat.completions.create(
+                model="gpt-4-turbo-preview",
+                messages=self.chatMessages
+            )
+            print("Answer:", completion.choices[0].message.content)
+        except OpenAIError as e:
+            #Handle API error here, e.g. retry or log
+            sys.exit("Error occured while connecting to chatbot. Please try again later.")
+
 
 print("Hello! Please start asking question")
 inputMessage = ""
